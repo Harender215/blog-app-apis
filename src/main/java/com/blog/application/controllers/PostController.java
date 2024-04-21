@@ -24,7 +24,7 @@ import com.blog.application.services.PostService;
 @RestController
 @RequestMapping("/api")
 public class PostController {
-	
+
 	@Autowired
 	private PostService postService;
 
@@ -56,7 +56,7 @@ public class PostController {
 			@RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
 			@RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
 			@RequestParam(value = "sortBy", defaultValue = "postId", required = false) String sortBy,
-			@RequestParam(value="sortDir", defaultValue="asc", required = false) String sortDir) {
+			@RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir) {
 		PostResponse allPost = this.postService.getAllPost(pageNumber, pageSize, sortBy, sortDir);
 		return new ResponseEntity<PostResponse>(allPost, HttpStatus.OK);
 	}
@@ -78,5 +78,11 @@ public class PostController {
 	public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable Integer postId) {
 		PostDto updatedPostDto = this.postService.updatePost(postDto, postId);
 		return new ResponseEntity<>(updatedPostDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/posts/search/{keywords}")
+	public ResponseEntity<List<PostDto>> searchPostsByTitle(@PathVariable String keywords) {
+		List<PostDto> searchedPost = this.postService.searchPost(keywords);
+		return new ResponseEntity<>(searchedPost, HttpStatus.OK);
 	}
 }
