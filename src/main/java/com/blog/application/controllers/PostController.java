@@ -1,8 +1,10 @@
 package com.blog.application.controllers;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,11 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.blog.application.config.AppConstants;
 import com.blog.application.payloads.ApiResponse;
 import com.blog.application.payloads.PostDto;
 import com.blog.application.payloads.PostResponse;
+import com.blog.application.services.FileService;
 import com.blog.application.services.PostService;
 
 @RestController
@@ -28,6 +32,12 @@ public class PostController {
 
 	@Autowired
 	private PostService postService;
+	
+	@Autowired
+	private FileService fileService;
+	
+	@Value("${project.image}")
+	private String path;
 
 	// create
 	@PostMapping("/user/{userId}/category/{categoryId}/posts")
@@ -86,4 +96,24 @@ public class PostController {
 		List<PostDto> searchedPost = this.postService.searchPost(keywords);
 		return new ResponseEntity<>(searchedPost, HttpStatus.OK);
 	}
+	
+	//post image upload
+	@PostMapping("/post/image/upload/{postId}")
+	public ResponseEntity<PostDto> uploadPostImage(@RequestParam("image") MultipartFile image, @PathVariable Integer postId) throws IOException {
+		PostDto postDto = this.postService.getPostById(postId);
+		String fileName = this.fileService.uploadImage(path, image);
+		postDto.setImageName(fileName);
+		PostDto updatedPost = this.postService.updatePost(postDto, postId);
+		return new ResponseEntity<PostDto>(updatedPost, HttpStatus.OK);
+		
+	}
+	
 }
+
+
+
+
+
+
+
+
